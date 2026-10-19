@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://frostweather.com/sitemap.xml
