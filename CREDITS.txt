@@ -8,3 +8,5 @@ Source: https://commons.wikimedia.org/wiki/File:Sunset_and_stars_over_St%C3%A5ng
 Geist and Newsreader: SIL Open Font License 1.1. License texts are included in assets/.
 
 The Rooms discussions and participants are illustrative examples, not live community content.
+
+Additional previews: Frost Feed and Rooms screenshots captured from the actual Mac development build on October 19, 2026. Feed photographs retain their visible in-app credits. Storm-room SVG weather studies are original abstract illustrations, not maps, forecasts, or current events.
