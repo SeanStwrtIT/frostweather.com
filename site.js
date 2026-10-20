@@ -1,73 +1,173 @@
-
 (() => {
-  const root=document.getElementById('frost-premium');
-  const topics={
-    hurricane:{category:'Hurricanes',title:'The next turn changes everything.',body:'Imagine following a hurricane as a new forecast track arrives. Which part changed: the center line, the timing, or the area of uncertainty? This room brings those questions into one conversation.',reply:'I’d put successive official forecasts side by side and compare their issue times. Coastal photos could add perspective, while the official advisory stays clearly separate from everyone’s interpretation.'},
-    tornado:{category:'Tornadoes',title:'When the atmosphere comes together.',body:'A fictional outbreak is developing across the Plains. The satellite view shows the bigger picture; the radar reveals individual storms. What changed between the last two scans?',reply:'I’d love a room that follows a storm’s evolution without treating every screenshot as a confirmed tornado. Keep observations timestamped and official warnings distinguishable from discussion.'},
-    blizzard:{category:'Winter storms',title:'One storm. A thousand different winters.',body:'In this scenario, one town sees wet flakes while another is buried under a persistent snow band. How would you compare the same storm from both places?',reply:'A window view, a location at town level, and the time it was taken would tell a great story. It would be fascinating to watch the snow line move through everyone’s observations.'},
-    wildfire:{category:'Wildfires',title:'The story doesn’t stop at the fireline.',body:'Imagine a smoke plume stretching far beyond a wildfire. The sky looks different hundreds of miles away. How do satellite imagery, official air-quality readings, and local observations connect?',reply:'I’d compare the source and timestamp of each reading before interpreting a photo. The room could help explain the changing sky, with evacuation instructions and health guidance linked to the responsible authorities.'}
-  };
-  const state={category:'All Rooms',topic:null};
-  const list=root.querySelector('.fp-thread-list');
-  const view=root.querySelector('.fp-topic-view');
-  function render(){
-    root.querySelectorAll('[data-category]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.category===state.category)));
-    list.hidden=!!state.topic;view.hidden=!state.topic;
-    root.querySelectorAll('[data-topic]').forEach(button=>{button.hidden=state.category!=='All Rooms'&&topics[button.dataset.topic].category!==state.category;});
-    if(state.topic){const topic=topics[state.topic];view.querySelector('[data-detail-image]').src=`assets/room-${state.topic}.svg`;view.querySelector('[data-detail-category]').textContent=topic.category.toUpperCase();view.querySelector('[data-detail-title]').textContent=topic.title;view.querySelector('[data-detail-body]').textContent=topic.body;view.querySelector('[data-detail-reply]').textContent=topic.reply;}
+  'use strict';
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const hours = $('#dial-hours'), thermal = $('#dial-temp'), ticks = $('#dial-ticks'), labels = $('#dial-labels');
+  const slider = $('#hour-slider');
+  const temperatures = [58,56,54,53,52,53,56,59,62,65,68,71,73,75,76,76,75,72,68,64,62,61,60,59];
+  const rainChances = [0,0,0,0,0,0,5,5,5,5,10,10,10,10,10,10,10,15,15,10,5,5,0,0];
+  const sunrise = 7.25, sunset = 18.75;
+  const polar = (radius, angle) => { const a = (angle - 90) * Math.PI / 180; return [250 + radius * Math.cos(a),250 + radius * Math.sin(a)]; };
+  const mix = (a,b,t) => '#' + a.match(/[\da-f]{2}/gi).map((v,i) => Math.round(parseInt(v,16)+(parseInt(b.match(/[\da-f]{2}/gi)[i],16)-parseInt(v,16))*t).toString(16).padStart(2,'0')).join('');
+  function node(name, attrs, parent) { const el = document.createElementNS(svgNS,name); Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v)); if(parent) parent.append(el); return el; }
+  function arc(radius,start,end) { const a=polar(radius,start),b=polar(radius,end);return `M${a[0]} ${a[1]} A${radius} ${radius} 0 0 1 ${b[0]} ${b[1]}`; }
+  function skyColor(h) {
+    if(h<6.2 || h>=20) return '#303465';
+    if(h<7.25) return mix('#303465','#e8ad76',(h-6.2)/1.05);
+    if(h<8.5) return mix('#e8ad76','#9ec6d9',(h-7.25)/1.25);
+    if(h<16.5) return '#9ec6d9';
+    if(h<18.75) return mix('#9ec6d9','#e6a367',(h-16.5)/2.25);
+    return mix('#e6a367','#303465',(h-18.75)/1.25);
   }
+  function temperature(h) { const whole=Math.floor(h);return temperatures[whole]+(temperatures[(whole+1)%24]-temperatures[whole])*(h-whole); }
+  // Fine slices keep the transitions continuous; the deliberate hourly gaps preserve the native dial's rhythm.
+  for(let i=0;i<288;i++) {
+    const h=i/12,start=i*1.25+(i%12===0?.6:-.03),end=(i+1)*1.25+((i+1)%12===0?-.6:.03);
+    node('path',{d:arc(182,start,end),fill:'none',stroke:skyColor(h),'stroke-width':35},hours);
+    const value=(temperature(h)-52)/24;
+    node('path',{d:arc(157,start,end),fill:'none',stroke:`hsl(${210-value*176} ${33+value*15}% ${64-value*11}%)`,'stroke-width':4},thermal);
+  }
+  for(let i=0;i<96;i++) {
+    const major=i%4===0,a=polar(major?209:213,i*3.75),b=polar(major?217:216,i*3.75);
+    node('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],class:major?'dial-tick major':'dial-tick'},ticks);
+  }
+  for(let h=0;h<24;h+=3) {
+    const el=node('text',{'text-anchor':'middle','dominant-baseline':'central',class:'dial-label','data-hour':h},labels);
+    el.textContent=h%12||12;
+  }
+  function clock(h) { const whole=Math.floor(h),minute=Math.round((h-whole)*60);return `${whole%12||12}:${String(minute).padStart(2,'0')} ${whole>=12?'PM':'AM'}`; }
+  function phase(h) {
+    if(h<6.2) return {name:'BEFORE THE DAY',mood:'night',title:['The quiet before','the light.'],description:'Cool air and a still sky. The morning is taking its time.',condition:'Clear night',light:'Sunrise at 7:15 AM'};
+    if(h<sunrise) return {name:'FIRST LIGHT',mood:'morning',title:['A new day','is taking shape.'],description:'The horizon is brightening. A cool morning is on the way.',condition:'First light',light:'Sunrise at 7:15 AM'};
+    if(h<10) return {name:'MORNING LIGHT',mood:'morning',title:['A bright start.','A fresh outlook.'],description:'The sun is up. Clear skies and cool air ease into the morning.',condition:'Clear skies',light:'Sunrise at 7:15 AM'};
+    if(h<16.5) return {name:'IN THE DAYLIGHT',mood:'day',title:['The day is','wide open.'],description:'A warm afternoon under a clear sky. Take a moment to look up.',condition:'Clear skies',light:remaining(h)};
+    if(h<sunset) return {name:'GOLDEN HOUR',mood:'golden',title:['A little daylight.','A little longer.'],description:'Clear skies and a softer sun. There’s still time to step outside.',condition:'Clear skies',light:remaining(h)};
+    if(h<20) return {name:'AFTERGLOW',mood:'twilight',title:['The light fades.','The color stays.'],description:'The sun has slipped below the horizon. The air is cooling down.',condition:'Twilight',light:'Sunset at 6:45 PM'};
+    return {name:'UNDER THE STARS',mood:'night',title:['A slower pace.','A deeper blue.'],description:'A clear, cool evening. The day gives way to a quieter sky.',condition:'Clear night',light:'Sunset at 6:45 PM'};
+  }
+  function remaining(h) { const minutes=Math.round((sunset-h)*60),hr=Math.floor(minutes/60),min=minutes%60;return `${hr?`${hr} hr`:''}${hr&&min?' ':''}${min?`${min} min`:''} until sunset`; }
+  function renderHour(value) {
+    const h=Number(value),angle=-h*15,time=clock(h),temp=Math.round(temperature(h)),state=phase(h);
+    [hours,thermal,ticks].forEach(el=>el.setAttribute('transform',`rotate(${angle} 250 250)`));
+    for(const el of labels.children) { const [x,y]=polar(235,Number(el.dataset.hour)*15+angle);el.setAttribute('x',x);el.setAttribute('y',y); }
+    $('#dial-time').textContent=time;$('#dial-temp-text').textContent=`${temp}°`;$('#dial-condition').textContent=state.condition;
+    $('#scrub-time').textContent=time;slider.setAttribute('aria-valuetext',`${time}, ${temp} degrees, ${state.condition.toLowerCase()}`);
+    $('#feels').textContent=`${temp}°`;$('#rain').textContent=`${rainChances[Math.floor(h)]}%`;
+    const wind=$('#wind');wind.replaceChildren(document.createTextNode(h>=10&&h<19?'NW 5 ':'N 3 '));const unit=document.createElement('span');unit.textContent='mph';wind.append(unit);
+    $('#sky-phase').textContent=state.name;
+    $('#sky-line').replaceChildren(document.createTextNode(state.title[0]+' '),document.createElement('br'),document.createTextNode(state.title[1]));
+    $('#sky-description').textContent=state.description;$('#light').textContent=state.light;$('.product-stage').dataset.phase=state.mood;
+    const day=h>=sunrise&&h<sunset,progress=Math.max(0,Math.min(1,(h-sunrise)/(sunset-sunrise)));
+    $('#sun-dot').setAttribute('cx',188+124*progress);$('#sun-dot').setAttribute('cy',206-45*Math.sin(progress*Math.PI));$('#sun-dot').setAttribute('opacity',day?'1':'0');
+    $('#moon-dot').setAttribute('opacity',state.mood==='night'?'1':'0');
+    const colors=state.mood==='night'?['#aaabc3','#d5d3df']:state.mood==='twilight'?['#c8b5c7','#e7d1c8']:state.mood==='day'||state.mood==='morning'?['#b8d4df','#e1e9e6']:['#e8c39c','#f4e4ce'];
+    $('#dome-top').setAttribute('stop-color',colors[0]);$('#dome-bottom').setAttribute('stop-color',colors[1]);
+    document.querySelectorAll('.presets button').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.hour)===h)));
+  }
+  slider.addEventListener('input',()=>renderHour(slider.value));
+  document.querySelectorAll('.presets button').forEach(button=>button.addEventListener('click',()=>{slider.value=button.dataset.hour;renderHour(slider.value);}));
+  renderHour(slider.value);
 
-  function announce(){
-    const count=[...root.querySelectorAll('[data-topic]')].filter(button=>!button.hidden).length;
-    root.querySelector('#room-status').textContent=`${count} scenario ${count===1?'discussion':'discussions'} in ${state.category}.`;
-  }
-  root.querySelectorAll('[data-category]').forEach(button=>button.addEventListener('click',()=>{
-    state.category=button.dataset.category;state.topic=null;render();announce();
-  }));
-  root.querySelectorAll('[data-topic]').forEach(button=>button.addEventListener('click',()=>{
-    state.topic=button.dataset.topic;render();view.querySelector('h3').focus({preventScroll:true});
-    view.scrollIntoView({block:'nearest',behavior:'auto'});
-  }));
-  root.querySelector('.fp-back').addEventListener('click',()=>{
-    const previous=state.topic;state.topic=null;render();
-    root.querySelector(`[data-topic="${previous}"]`).focus({preventScroll:true});
-  });
-  const screens={
-    forecast:{src:'frost-mac.jpg',title:'A little more certainty about your day.',description:'Hourly conditions, the days ahead, and the details that help you decide when to head outside.',alt:'Frost for Mac showing the hourly and ten-day forecast beside the weather map.'},
-    map:{src:'frost-mac.jpg',title:'Put the forecast in perspective.',description:'Explore the weather map and radar timeline, with the forecast close at hand. This captured view shows clear conditions around Atlanta.',alt:'The Frost weather map around Atlanta, with radar and forecast timeline controls.'},
-    feed:{src:'frost-feed.jpg',title:'Another window on the same sky.',description:'Find nearby perspectives and people to follow. This development screen shows example photography while the community takes shape.',alt:'The actual Frost Feed screen with Nearby selected and clearly labeled example weather photographs.'},
-    rooms:{src:'frost-rooms.jpg',title:'Find your people. Follow the weather.',description:'A place for local conversations and weather stories that cross borders. Explore the scenario previews below to see where Rooms could go.',alt:'The actual Frost Rooms development screen showing its local Atlanta room and search controls.'}
+  // Fictional, compressed scenarios: each sequence moves from a forecast to observations and a revised call.
+  const rooms={
+    hurricanes:{posts:[
+      ['Maya','8:10 AM','Euro turns it north earlier; GFS stays west longer. That timing gap is the whole forecast for the coast.','Forecast'],
+      ['Eli','8:18 AM','Maya, the ensembles still spread both ways. I’d keep a wider track envelope than either headline run.','Forecast'],
+      ['Jordan','8:26 AM','And intensity is its own puzzle. Warm water helps, but that pocket of dry air could slow the strengthening.','Forecast'],
+      ['Eli','1:05 PM','The center has edged north over the last few hours. Interesting—but one wobble isn’t the turn yet.','Nowcast'],
+      ['Maya','1:14 PM','Agreed. If that motion holds through another advisory, I’d lean toward the earlier-turn solution.','Nowcast'],
+      ['Chris','3:40 PM','First band just hit. Hard rain for five minutes—now blue sky. Anyone else getting these sudden breaks?','On the ground'],
+      ['Jordan','3:48 PM','There’s our band! Almost on the morning timing. The center is still offshore; the weather clearly isn’t.','Nowcast'],
+      ['Chris','4:15 PM','Wind picked up again with the next band. The gaps between them are getting shorter from my window.','On the ground'],
+      ['Maya','4:24 PM','My next call: earlier bands, slower clearing. Still watching whether that northward turn becomes sustained.','Next call']
+    ]},
+    tornadoes:{posts:[
+      ['Rae','9:05 AM','HRRR fires discrete cells around 4; NAM holds the cap longer. Plenty of shear, but will anything get going?','Forecast'],
+      ['Dev','9:13 AM','Rae, I’m leaning later. The warm layer is stubborn. A little more surface heating could change that fast.','Forecast'],
+      ['Sam','9:22 AM','If cells stay isolated, they’ll have room to organize. If they merge early, we’re looking at a different setup.','Forecast'],
+      ['Jo','3:32 PM','There it is. A tower west of me is finally holding. Anyone else watching that one?','On the ground'],
+      ['Rae','3:45 PM','Yes—first echo is up! Still isolated. That earlier initiation window is looking more plausible.','Nowcast'],
+      ['Dev','4:06 PM','The updraft looks organized across a few scans. There’s rotation aloft; that alone doesn’t confirm a tornado.','Nowcast'],
+      ['Sam','4:18 PM','Second cell just popped south of it. Now the big question: do they stay separate?','Nowcast'],
+      ['Jo','4:27 PM','Sky has gone dark from the house. I’ve switched from model watching to the official local updates.','On the ground'],
+      ['Rae','4:35 PM','I’m leaning toward a line forming next. If those cells merge, the wind threat could become more widespread.','Next call']
+    ]},
+    blizzards:{posts:[
+      ['Nora','8:20 AM','Euro is colder; GFS keeps a warm layer longer. That puts the rain–snow line right through our forecast area.','Forecast'],
+      ['Alex','8:29 AM','Nora, I’d split the difference for now. The changeover time matters more than the big snowfall map.','Forecast'],
+      ['Jamie','8:38 AM','My wildcard is the narrow band northwest of the low. If it stalls, totals could jump over just a few miles.','Forecast'],
+      ['Nora','5:12 PM','Called the changeover too late. Wet flakes already! 34° on the porch thermometer.','On the ground'],
+      ['Alex','5:25 PM','Radar’s heavier band is pivoting toward us. If cooling continues under it, the changeover could speed up.','Nowcast'],
+      ['Jamie','6:02 PM','That band has barely moved in three scans. This is where the county-to-county totals start to separate.','Nowcast'],
+      ['Nora','6:18 PM','There it is—all snow. Huge flakes in the porch light. Grass turned white in twenty minutes.','On the ground'],
+      ['Alex','6:31 PM','That answers the changeover question. Next is wind: loose snow could keep visibility poor after the band moves.','Nowcast'],
+      ['Jamie','6:45 PM','I’d raise totals under that stalled band, not everywhere. Still a sharp cutoff if it shifts ten miles east.','Next call']
+    ]},
+    wildfires:{posts:[
+      ['Tess','8:15 AM','The smoke model brings the plume east by noon. Surface winds turn later, though—some could stay above us.','Forecast'],
+      ['Morgan','8:24 AM','Tess, that timing is my question too. A plume overhead doesn’t automatically mean the same smoke at ground level.','Forecast'],
+      ['Chris','8:33 AM','I’d watch for more mixing this afternoon. If smoke reaches the surface, the monitors should help show it.','Forecast'],
+      ['Tess','12:40 PM','Anyone else losing the ridgeline? Blue sky overhead, but the light down here has gone oddly warm.','On the ground'],
+      ['Morgan','12:52 PM','Yes, I see it too. The satellite plume is over the valley, but surface readings haven’t risen together yet.','Nowcast'],
+      ['Chris','1:35 PM','There’s the wind shift. West at the local station now—almost an hour later than the morning run.','Nowcast'],
+      ['Tess','2:08 PM','Haze is thicker down here now. I’m checking AirNow rather than guessing air quality from the view.','On the ground'],
+      ['Morgan','2:19 PM','Two nearby monitors are climbing. That fits smoke mixing down, though the valley still looks patchy.','Nowcast'],
+      ['Chris','2:30 PM','If the west wind holds, I’d expect the plume farther east next. Clearing here is still a timing question.','Next call']
+    ]}
   };
-  const tabs=[...root.querySelectorAll('[data-screen]')],panel=root.querySelector('#showcase-panel'),screenImage=root.querySelector('#showcase-image');
-  function selectScreen(tab){
-    const key=tab.dataset.screen, screen=screens[key];
-    tabs.forEach(t=>{const active=t===tab;t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;});
-    panel.setAttribute('aria-labelledby',tab.id);panel.dataset.view=key;
-    screenImage.src=`assets/${screen.src}`;screenImage.alt=screen.alt;
-    root.querySelector('#showcase-title').textContent=screen.title;root.querySelector('#showcase-description').textContent=screen.description;
+  const roomPhotos={
+    hurricanes:{file:'room-hurricane.jpg',alt:'The cloud-lined eye of Hurricane Isabel photographed from the International Space Station in 2003.',caption:'Hurricane Isabel · 2003',credit:'NASA / Ed Lu',url:'https://commons.wikimedia.org/wiki/File:Hurricane_Isabel_eye_from_ISS.jpg'},
+    tornadoes:{file:'room-tornado.jpg',alt:'An archival NOAA photograph of a tornado beneath a dark storm cloud, partly obscured by rain and mist.',caption:'Tornado · NOAA archive',credit:'NOAA Photo Library',url:'https://commons.wikimedia.org/wiki/File:Nssl0090_-_Flickr_-_NOAA_Photo_Library.jpg'},
+    blizzards:{file:'room-blizzard.jpg',alt:'Snow falling heavily over a Washington, D.C. street during the January 2016 blizzard.',caption:'Washington, D.C. · 2016',credit:'Joe Flood · CC BY 2.0',url:'https://commons.wikimedia.org/wiki/File:Blizzard3_-_NOAA.jpg'},
+    wildfires:{file:'room-wildfire.jpg',alt:'A tall smoke plume rises above a forested mountain during Utah’s East Fork Fire in 2020.',caption:'East Fork Fire · 2020',credit:'U.S. Forest Service',url:'https://commons.wikimedia.org/wiki/File:East_Fork_fire_in_Ashley_National_Forest.jpg'}
+  };
+  function showRoomPhoto(key) {
+    const photo=roomPhotos[key],image=$('#room-photo');
+    image.src=`assets/${photo.file}`;image.alt=photo.alt;
+    $('#photo-caption').textContent=photo.caption;
+    $('#photo-source').textContent=`${photo.credit} · Archive ↗`;
+    $('#photo-source').setAttribute('title',`${photo.caption} — ${photo.credit}. View photo source.`);
+    $('#photo-source').href=photo.url;
   }
-  tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>selectScreen(tab));tab.addEventListener('keydown',e=>{
-    let next;if(e.key==='ArrowRight')next=(i+1)%tabs.length;else if(e.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=tabs.length-1;else return;
-    e.preventDefault();selectScreen(tabs[next]);tabs[next].focus();
-  });});
-  root.querySelector('#privacy-link').addEventListener('click',()=>{root.querySelector('#privacy').open=true;});
-  // A lightweight atmospheric scene. No video downloads, live-weather claims, or tracking.
-  const canvas=root.querySelector('#weather-scene'),ctx=canvas.getContext('2d'),hero=root.querySelector('.fp-atmosphere'),motion=root.querySelector('#motion-toggle');
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
-  let paused=reduced.matches,mode='rain',raf=0,last=0,w=0,h=0,inView=true,particles=[];
-  function resize(){w=hero.clientWidth;h=hero.clientHeight;const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=w*dpr;canvas.height=h*dpr;ctx?.setTransform(dpr,0,0,dpr,0,0);particles=Array.from({length:w<600?55:100},()=>({x:Math.random()*w,y:Math.random()*h,z:.25+Math.random()*.75}));}
-  function syncMotion(){hero.classList.toggle('fp-motion-paused',paused);motion.textContent=paused?'Play motion':'Pause motion';motion.setAttribute('aria-pressed',String(paused));if(paused){cancelAnimationFrame(raf);raf=0;hero.style.setProperty('--parallax','0px');}else start();}
-  function start(){if(!raf&&!paused&&inView&&!document.hidden&&ctx){last=0;raf=requestAnimationFrame(draw);}}
-  function draw(time){raf=0;if(paused||!inView||document.hidden||!ctx)return;const dt=last?Math.min((time-last)/16.7,2):1;last=time;ctx.clearRect(0,0,w,h);
-    if(mode!=='clear') for(const p of particles){p.y+=(mode==='rain'?8:0.7)*p.z*dt;p.x+=(mode==='rain'?-2:Math.sin(time*.0004+p.z*9)*.55)*dt;if(p.y>h+20){p.y=-20;p.x=Math.random()*w;}if(p.x<0)p.x=w;if(p.x>w)p.x=0;
-      ctx.beginPath();if(mode==='rain'){ctx.strokeStyle=`rgba(225,238,250,${.10+p.z*.18})`;ctx.lineWidth=.6+p.z*.6;ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-3*p.z,p.y+18*p.z);ctx.stroke();}else{ctx.fillStyle=`rgba(245,248,255,${.25+p.z*.4})`;ctx.arc(p.x,p.y,1+p.z*1.6,0,Math.PI*2);ctx.fill();}}
-    const y=Math.min(window.scrollY,hero.offsetHeight);hero.style.setProperty('--parallax',`${y*.16}px`);raf=requestAnimationFrame(draw);
+  const note=$('#room-note'),reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let current='hurricanes',postIndex=0,paused=reduced.matches,visible=false,timer=null;
+  const chapterNames=['The forecast','The shift','Right outside'];
+  function renderMoment(animate=false,announce=false) {
+    const data=rooms[current].posts[postIndex],chapter=Math.floor(postIndex/3);
+    const article=document.createElement('article');article.className=animate&&!reduced.matches?'room-comment arriving':'room-comment';
+    const avatar=document.createElement('span');avatar.className='room-avatar';avatar.setAttribute('aria-hidden','true');avatar.textContent=data[0][0];
+    const body=document.createElement('div'),meta=document.createElement('div'),name=document.createElement('strong'),time=document.createElement('span'),text=document.createElement('p');
+    meta.className='room-meta';name.textContent=data[0];time.textContent=data[1];text.textContent=data[2];meta.append(name,time);body.append(meta,text);article.append(avatar,body);note.replaceChildren(article);
+    document.querySelectorAll('[data-chapter]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.chapter)===chapter)));
+    const replay=postIndex===rooms[current].posts.length-1;
+    $('#next-post').replaceChildren(document.createTextNode(replay?'Replay story ':'Next moment '));
+    const arrow=document.createElement('span');arrow.setAttribute('aria-hidden','true');arrow.textContent=replay?'↻':'→';$('#next-post').append(arrow);
+    if(announce)$('#post-status').textContent=`${chapterNames[chapter]}. ${data[0]}, ${data[1]}: ${data[2]}`;
   }
-  root.querySelectorAll('[data-weather]').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.weather;root.querySelectorAll('[data-weather]').forEach(t=>t.setAttribute('aria-pressed',String(t===b)));ctx?.clearRect(0,0,w,h);start();}));
-  motion.addEventListener('click',()=>{paused=!paused;syncMotion();});
-  reduced.addEventListener('change',e=>{paused=e.matches;syncMotion();});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else start();});
-  new IntersectionObserver(entries=>{inView=entries[0].isIntersecting;if(!inView){cancelAnimationFrame(raf);raf=0;}else start();}).observe(hero);
-  window.addEventListener('resize',resize,{passive:true});resize();syncMotion();
-  render();
+  function advance(announce=false) {
+    postIndex=(postIndex+1)%rooms[current].posts.length;renderMoment(true,announce);
+  }
+  function schedule() {
+    clearInterval(timer);timer=null;
+    if(!paused&&visible&&!document.hidden)timer=setInterval(()=>advance(),6000);
+  }
+  function selectRoom(key) {
+    current=key;postIndex=0;$('.room-story').dataset.topic=key;
+    document.querySelectorAll('[data-room]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.room===key)));
+    showRoomPhoto(key);renderMoment();schedule();
+  }
+  function reflectPause() {
+    const button=$('#pause-posts');button.setAttribute('aria-pressed',String(paused));button.textContent=paused?'Resume':'Pause';
+    button.setAttribute('aria-label',paused?'Resume automatic story moments':'Pause automatic story moments');
+  }
+  document.querySelectorAll('[data-room]').forEach(button=>button.addEventListener('click',()=>selectRoom(button.dataset.room)));
+  document.querySelectorAll('[data-chapter]').forEach(button=>button.addEventListener('click',()=>{postIndex=Number(button.dataset.chapter)*3;renderMoment(true,true);schedule();}));
+  $('#pause-posts').addEventListener('click',()=>{paused=!paused;reflectPause();schedule();});
+  $('#next-post').addEventListener('click',()=>{advance(true);schedule();});
+  reduced.addEventListener('change',event=>{if(event.matches)paused=true;reflectPause();schedule();});
+  document.addEventListener('visibilitychange',schedule);
+  // The photograph can be on screen while the conversation is still below the fold.
+  // Observe the comment itself so autoplay begins only once the reader reaches it.
+  if('IntersectionObserver' in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting&&entries[0].intersectionRatio>=.65;schedule();},{threshold:[0,.65]}).observe(note);
+  reflectPause();selectRoom(current);
 })();

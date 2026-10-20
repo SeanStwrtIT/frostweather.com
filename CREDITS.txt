@@ -1,12 +1,41 @@
-Frost brand and app preview: Sean Stewart.
+Frost brand and product presentation: Sean Stewart.
 
-Hero photograph: Sunset and stars over Stångehuvud
-Photographer: W.carter
-License: CC0
-Source: https://commons.wikimedia.org/wiki/File:Sunset_and_stars_over_St%C3%A5ngehuvud.jpg
+Geist and retained Newsreader font: SIL Open Font License 1.1.
+License texts are included in assets/.
 
-Geist and Newsreader: SIL Open Font License 1.1. License texts are included in assets/.
+Our Sky dial, daylight and temperature bands, and horizon detail are original code-native graphics based on Frost's native product design.
+Rooms participant names, scenario timestamps, model comparisons, predictions, and observations are fictional examples. They are not a reconstruction of the historical events in the accompanying photographs.
 
-The Rooms discussions and participants are illustrative examples, not live community content.
+ACTIVE ROOMS PHOTOGRAPHS
 
-Additional previews: Frost Feed and Rooms screenshots captured from the actual Mac development build on October 19, 2026. Feed photographs retain their visible in-app credits. Storm-room SVG weather studies are original abstract illustrations, not maps, forecasts, or current events.
+assets/room-hurricane.jpg
+Hurricane Isabel's eye photographed from the International Space Station, September 13, 2003.
+Credit: NASA / astronaut Ed Lu. Public domain (U.S. federal government work).
+Source: https://commons.wikimedia.org/wiki/File:Hurricane_Isabel_eye_from_ISS.jpg
+Changes: resized to 1280 px and cropped responsively for display; no content alteration or colorization.
+
+assets/room-tornado.jpg
+Tornado seen through rain and mist; archival NOAA photograph. Capture date unspecified.
+Credit: NOAA OAR/ERL/Wave Propagation Laboratory / NOAA Photo Library.
+The source identifies this U.S. government work as public domain and also provides a CC BY 2.0 release.
+Source: https://commons.wikimedia.org/wiki/File:Nssl0090_-_Flickr_-_NOAA_Photo_Library.jpg
+License: https://creativecommons.org/licenses/by/2.0/
+Changes: resized to 1280 px and cropped responsively for display; no content alteration or colorization.
+
+assets/room-blizzard.jpg
+Washington, D.C. during the January 23, 2016 blizzard.
+Credit: Joe Flood / NOAA Photo Library. Licensed under Creative Commons Attribution 2.0 Generic.
+Source: https://commons.wikimedia.org/wiki/File:Blizzard3_-_NOAA.jpg
+License: https://creativecommons.org/licenses/by/2.0/
+Changes: resized to 1280 px and cropped responsively for display; no content alteration or colorization.
+
+assets/room-wildfire.jpg
+Smoke from the East Fork Fire, Ashley National Forest, Utah, August 22, 2020.
+Credit: U.S. Forest Service. Public domain (U.S. federal government work).
+Source: https://commons.wikimedia.org/wiki/File:East_Fork_fire_in_Ashley_National_Forest.jpg
+Changes: resized to 960 x 1280 px and cropped responsively for display; no content alteration or colorization.
+
+Photographs are displayed without text overlays, gradients, or colorization. A discreet caption below each image identifies its historical event and links to the credited author/source with an Archive label. Further historical details are retained in the source-link title and image alternative text.
+
+UNUSED RETAINED ASSETS
+The prior hero photograph (Sunset and stars over Stångehuvud, W.carter, CC0; https://commons.wikimedia.org/wiki/File:Sunset_and_stars_over_St%C3%A5ngehuvud.jpg), Frost Feed and Rooms screenshots captured from the Mac development build on October 19, 2026, and earlier abstract storm-room SVG studies. Feed photographs retain their visible in-app credits. None are displayed on this version of the site.
