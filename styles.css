@@ -39,3 +39,16 @@
 @media(max-width:480px){.rooms{padding:72px 22px 55px}.rooms-heading .eyebrow{font-size:10px;letter-spacing:1.7px;margin-bottom:20px}.rooms-heading h2{font-size:48px;letter-spacing:-2.3px}.rooms-heading>p:last-child{font-size:15px;letter-spacing:0;margin-top:18px}.room-topics{gap:1px;margin:27px 0 17px;justify-content:space-between}.room-topics button{font-size:11px;padding:0 12px}.room-figure img{height:300px}.room-caption{flex-wrap:wrap;gap:0 8px;padding-top:10px;font-size:10px}.room-caption a{min-height:32px}.room-chapters{gap:13px;margin-top:23px}.room-chapters button{font-size:12px;min-height:70px;padding-top:12px;line-height:1.4}.room-chapters small{font-size:10px;line-height:1.5;margin-top:6px}.room-note{height:164px;margin-top:24px}.room-comment{grid-template-columns:30px minmax(0,1fr);gap:11px}.room-avatar{width:29px;height:29px;font-size:11px}.room-comment p{font-size:15px;line-height:1.65;letter-spacing:0}.room-meta{font-size:12px;gap:8px;margin-bottom:10px}.room-meta span{font-size:10px}.room-foot{align-items:center;flex-wrap:wrap;gap:6px 15px;padding-top:12px;margin-top:8px}.room-foot>span{font-size:10px}.room-controls{gap:24px;margin-left:auto}.room-controls button{font-size:11px}}
 @media(max-width:350px){.rooms{padding-left:20px;padding-right:20px}.rooms-heading h2{font-size:43px;letter-spacing:-2px}.rooms-heading>p:last-child{font-size:14px}.room-topics button{padding:0 10px;font-size:10px}.room-chapters{gap:10px}.room-chapters button{font-size:11px}.room-chapters small{font-size:9px}.room-note{height:174px}.room-comment p{font-size:15px}.room-caption{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.room-comment.arriving{animation:none}}
+
+/* Rooms and Panes messaging revision */
+.hero h1{font-size:clamp(52px,7vw,100px);letter-spacing:-5px}.hero-description{max-width:680px;margin-left:auto;margin-right:auto}
+@media(max-width:480px){.hero h1{font-size:44px;letter-spacing:-2.3px}.hero-description{padding:0 8px}}
+@media(max-width:350px){.hero h1{font-size:38px;letter-spacing:-2px}}
+
+/* Frost 17 identity: sun dial ring and raised degree wordmark. */
+:root{--paper:#F6F2EA;--ink:#14161A;background:var(--paper);color:var(--ink)}
+.brand .brand-wordmark{width:116px;height:auto;display:block;overflow:visible}
+.site-footer .brand .brand-wordmark{width:98px;height:auto}
+.hero h1 span{color:#697780}
+.light-spectrum{background:linear-gradient(90deg,#1D265A,#20295F,#222C63,#252F68,#303872,#815D82,#E29480,#F3BD88,#E5D2A9,#C8D9D7,#B2D7EC,#A3CEE7,#94C5E2,#90C2E0,#99C6E1,#A2CAE2,#C0C9BF,#F4C27A,#EE8A5B,#A14A70,#433774,#2A2F68,#242B62,#1F275B)}
+@media(max-width:760px){.brand .brand-wordmark{width:102px;height:auto}.site-footer .brand .brand-wordmark{width:94px}}

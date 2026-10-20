@@ -11,16 +11,11 @@
   const mix = (a,b,t) => '#' + a.match(/[\da-f]{2}/gi).map((v,i) => Math.round(parseInt(v,16)+(parseInt(b.match(/[\da-f]{2}/gi)[i],16)-parseInt(v,16))*t).toString(16).padStart(2,'0')).join('');
   function node(name, attrs, parent) { const el = document.createElementNS(svgNS,name); Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v)); if(parent) parent.append(el); return el; }
   function arc(radius,start,end) { const a=polar(radius,start),b=polar(radius,end);return `M${a[0]} ${a[1]} A${radius} ${radius} 0 0 1 ${b[0]} ${b[1]}`; }
-  function skyColor(h) {
-    if(h<6.2 || h>=20) return '#303465';
-    if(h<7.25) return mix('#303465','#e8ad76',(h-6.2)/1.05);
-    if(h<8.5) return mix('#e8ad76','#9ec6d9',(h-7.25)/1.25);
-    if(h<16.5) return '#9ec6d9';
-    if(h<18.75) return mix('#9ec6d9','#e6a367',(h-16.5)/2.25);
-    return mix('#e6a367','#303465',(h-18.75)/1.25);
-  }
+  // Canonical 17D palette: one color per hour, shared with Frost’s brand ring.
+  const hourColors = ["#1D265A", "#20295F", "#222C63", "#252F68", "#303872", "#815D82", "#E29480", "#F3BD88", "#E5D2A9", "#C8D9D7", "#B2D7EC", "#A3CEE7", "#94C5E2", "#90C2E0", "#99C6E1", "#A2CAE2", "#C0C9BF", "#F4C27A", "#EE8A5B", "#A14A70", "#433774", "#2A2F68", "#242B62", "#1F275B"];
+  function skyColor(h) { return hourColors[Math.floor(h)%24]; }
   function temperature(h) { const whole=Math.floor(h);return temperatures[whole]+(temperatures[(whole+1)%24]-temperatures[whole])*(h-whole); }
-  // Fine slices keep the transitions continuous; the deliberate hourly gaps preserve the native dial's rhythm.
+  // Fine geometry preserves clean hourly gaps; each hour retains its canonical color.
   for(let i=0;i<288;i++) {
     const h=i/12,start=i*1.25+(i%12===0?.6:-.03),end=(i+1)*1.25+((i+1)%12===0?-.6:.03);
     node('path',{d:arc(182,start,end),fill:'none',stroke:skyColor(h),'stroke-width':35},hours);

@@ -39,3 +39,5 @@ Photographs are displayed without text overlays, gradients, or colorization. A d
 
 UNUSED RETAINED ASSETS
 The prior hero photograph (Sunset and stars over Stångehuvud, W.carter, CC0; https://commons.wikimedia.org/wiki/File:Sunset_and_stars_over_St%C3%A5ngehuvud.jpg), Frost Feed and Rooms screenshots captured from the Mac development build on October 19, 2026, and earlier abstract storm-room SVG studies. Feed photographs retain their visible in-app credits. None are displayed on this version of the site.
+
+Frost brand identity: approved 17A sun dial icon, 17C wordmark, and 17D 24-hour palette supplied by Sean Stewart. Wordmark uses bundled Geist 500.
