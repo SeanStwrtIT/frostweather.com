@@ -19,3 +19,7 @@ See CREDITS.txt and assets/*-OFL.txt for asset credits and font licenses. Older 
 
 Brand: A new perspective on weather. Main introduction: Meet Frost. Rooms: Be there. As it unfolds.
 Identity: approved sun dial icon, Geist 500 frost wordmark with raised 24-hour degree ring, and assets/palette.json.
+
+Panes is the community photo/video/observation experience, shown in three code-native portrait mock-ups with credited demo photos. The sun dial is a separate signature weather interaction.
+
+All photography source links, licenses, example-content notes and font credits are consolidated in the expandable site-footer Credits & references section.

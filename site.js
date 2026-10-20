@@ -119,10 +119,6 @@
   function showRoomPhoto(key) {
     const photo=roomPhotos[key],image=$('#room-photo');
     image.src=`assets/${photo.file}`;image.alt=photo.alt;
-    $('#photo-caption').textContent=photo.caption;
-    $('#photo-source').textContent=`${photo.credit} · Archive ↗`;
-    $('#photo-source').setAttribute('title',`${photo.caption} — ${photo.credit}. View photo source.`);
-    $('#photo-source').href=photo.url;
   }
   const note=$('#room-note'),reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let current='hurricanes',postIndex=0,paused=reduced.matches,visible=false,timer=null;

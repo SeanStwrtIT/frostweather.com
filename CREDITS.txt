@@ -41,3 +41,27 @@ UNUSED RETAINED ASSETS
 The prior hero photograph (Sunset and stars over Stångehuvud, W.carter, CC0; https://commons.wikimedia.org/wiki/File:Sunset_and_stars_over_St%C3%A5ngehuvud.jpg), Frost Feed and Rooms screenshots captured from the Mac development build on October 19, 2026, and earlier abstract storm-room SVG studies. Feed photographs retain their visible in-app credits. None are displayed on this version of the site.
 
 Frost brand identity: approved 17A sun dial icon, 17C wordmark, and 17D 24-hour palette supplied by Sean Stewart. Wordmark uses bundled Geist 500.
+
+PANES MOCK-UP PHOTOGRAPHY
+The interface mock-ups and sample captions are illustrative. People are fictional; these are not posts by the photographers.
+
+assets/pane-first-light.jpg
+A purple dawn sky and palms reflected in the still moat at Fort Pulaski near Savannah.
+Photo: National Park Service, public domain
+Source: https://commons.wikimedia.org/wiki/File:Dawn_at_Fort_Pulaski_(80a57d02-1dd8-b71c-07b5-6e006a1bf0b4).JPG
+License: https://creativecommons.org/publicdomain/mark/1.0/
+Changes: copied from the app’s licensed demo-photo collection; cropped responsively, with no color treatment. Used as credited illustrative imagery, not a real Frost user post.
+
+assets/pane-storm-front.jpg
+A layered shelf cloud arching over a young cornfield.
+Photo: NOAA National Weather Service, public domain
+Source: https://commons.wikimedia.org/wiki/File:Wea04582_(14504873542).jpg
+License: https://creativecommons.org/publicdomain/mark/1.0/
+Changes: copied from the app’s licensed demo-photo collection; cropped responsively, with no color treatment. Used as credited illustrative imagery, not a real Frost user post.
+
+assets/pane-rain-window.jpg
+Rain on a window blurring city lights into colorful bokeh at dusk.
+Photo: Ermell, CC BY-SA 4.0, via Wikimedia Commons
+Source: https://commons.wikimedia.org/wiki/File:Rain_on_window_pane_P1320871.jpg
+License: https://creativecommons.org/licenses/by-sa/4.0/
+Changes: copied from the app’s licensed demo-photo collection; cropped responsively, with no color treatment. Used as credited illustrative imagery, not a real Frost user post.
